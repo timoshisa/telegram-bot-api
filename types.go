@@ -621,6 +621,9 @@ type Message struct {
 	//
 	// optional
 	ReplyMarkup *InlineKeyboardMarkup `json:"reply_markup,omitempty"`
+	// MessageThreadID is the unique identifier of a message thread to which the message belongs;
+	// for supergroups only.
+	MessageThreadID int64 `json:"message_thread_id,omitempty"`
 }
 
 // Time converts the message timestamp into a Time.
@@ -690,6 +693,21 @@ func (m *Message) CommandArguments() string {
 	}
 
 	return m.Text[entity.Length+1:]
+}
+
+// IsTopicMessage reports whether this message belongs to a forum topic.
+//
+// In Telegram supergroups with topics enabled, messages sent inside a topic
+// include a non-zero MessageThreadID. A zero value indicates the main chat
+// thread (or a chat type that does not support topics).
+//
+// This is a convenience helper equivalent to checking:
+//
+//	m.MessageThreadID != 0
+//
+// Note: message_thread_id is only present for supergroups.
+func (m *Message) IsTopicMessage() bool {
+	return m != nil && m.MessageThreadID != 0
 }
 
 // MessageID represents a unique message identifier.
